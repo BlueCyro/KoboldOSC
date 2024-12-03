@@ -1,5 +1,6 @@
 namespace KoboldOSC.Structs;
 
+// Blatantly copied from Rug.Osc
 public readonly struct NtpTime
 {
     public static readonly DateTime Base = new(1900, 1, 1, 0, 0, 0, DateTimeKind.Utc);
