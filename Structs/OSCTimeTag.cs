@@ -3,6 +3,7 @@ using System.Runtime.InteropServices;
 
 namespace KoboldOSC.Structs;
 
+[Obsolete]
 [StructLayout(LayoutKind.Sequential)]
 public readonly struct OSCTimeTag : IOSCParameter
 {

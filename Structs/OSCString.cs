@@ -4,6 +4,7 @@ using System.Text;
 
 namespace KoboldOSC.Structs;
 
+[Obsolete]
 [StructLayout(LayoutKind.Sequential)]
 public readonly struct OSCString(OSCString.InlineUtf8 str) : IOSCParameter
 {
