@@ -1,5 +1,6 @@
 using System.Buffers;
 using System.Runtime.CompilerServices;
+using KoboldOSC.Helpers;
 using KoboldOSC.Structs;
 
 namespace KoboldOSC.Messages;

@@ -1,17 +1,7 @@
 using System.Runtime.CompilerServices;
 using System.Text;
 
-namespace KoboldOSC.Structs;
-
-[Obsolete]
-public interface IOSCParameter
-{
-    public byte ID { get; }
-    public int AlignedLength { get; }
-    public int Length { get; }
-    public void CopyTo(Span<byte> bytes);
-}
-
+namespace KoboldOSC.Helpers;
 
 public static class KOscValueHelpers
 {
