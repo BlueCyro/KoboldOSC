@@ -6,7 +6,7 @@ using System.Net.Sockets;
 using System.Threading.Tasks.Dataflow;
 using KoboldOSC.Messages;
 
-namespace KoboldOSC;
+namespace KoboldOSC.Server;
 
 public class KOscSender : IDisposable
 {
@@ -111,14 +111,12 @@ public class KOscSender : IDisposable
         for (int i = 0; i < packet.Length; i++)
         {
             ObjectDisposedException.ThrowIf(disposed, this);
-            
+
             if (!IsOpen)
                 throw new InvalidOperationException("This OSC sender isn't open yet! Did you call 'Open()'?");
 
             if (!outgoing.Post(packet[i]))
-            {
                 success = false;
-            }
         }
         return success;
 

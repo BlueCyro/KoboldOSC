@@ -1,15 +1,22 @@
 using System.Buffers;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using KoboldOSC.Helpers;
 using KoboldOSC.Structs;
 
 namespace KoboldOSC.Messages;
 
+/// <summary>
+/// Represents an OSC message.
+/// </summary>
 public class KOscMessage : IDisposable, IKOscPacket
 {
+    /// <inheritdoc />
     public int ByteLength => Path.GetAlignedLength() + IdLengthAligned + valuesLength;
 
-
+    /// <summary>
+    /// The path of this OSC message.
+    /// </summary>
     public readonly string Path;
 
     private byte[] idTable = [];
@@ -34,12 +41,9 @@ public class KOscMessage : IDisposable, IKOscPacket
     }
 
 
-
+    /// <inheritdoc />
     public void Serialize(Span<byte> destination)
     {
-        if (destination.Length < ByteLength)
-            throw new ArgumentOutOfRangeException(nameof(destination), "Span destination isn't large enough to hold this message.");
-        
         int pathSizeAligned = Path.GetAlignedLength();
         Span<byte> pathSlice = destination[..pathSizeAligned];
         Span<byte> idSlice = destination.Slice(pathSizeAligned, IdLengthAligned);
@@ -119,9 +123,9 @@ public class KOscMessage : IDisposable, IKOscPacket
 
 
 
-    private Span<byte> AllocateValue(int requiredSpace)
+    private Span<byte> AllocateValue(int requiredBytes)
     {
-        int newLength = valuesLength + requiredSpace;
+        int newLength = valuesLength + requiredBytes;
         byte[] temp = ArrayPool<byte>.Shared.Rent(newLength);
         Array.Clear(temp);
 
@@ -131,7 +135,7 @@ public class KOscMessage : IDisposable, IKOscPacket
 
         ArrayPool<byte>.Shared.Return(values);
 
-        Span<byte> valueSection = tempSpan.Slice(valuesLength, requiredSpace);
+        Span<byte> valueSection = tempSpan.Slice(valuesLength, requiredBytes);
         values = temp;
         valuesLength = newLength;
 
@@ -166,3 +170,56 @@ public class KOscMessage : IDisposable, IKOscPacket
         ArrayPool<byte>.Shared.Return(idTable);
     }
 }
+
+
+
+// public struct PooledQueue<T> : IDisposable
+// {
+//     private readonly ArrayPool<T> pool;
+//     private T[] items;
+//     public int Length { readonly get; private set; }
+
+
+
+//     public PooledQueue()
+//     {
+//         pool = ArrayPool<T>.Shared;
+//         items = [];
+//         EnsureCapacity(0);
+//     }
+
+//     public PooledQueue(ArrayPool<T> arrayPool)
+//     {
+//         pool = arrayPool;
+//         items = [];
+//         EnsureCapacity(0);
+//     }
+
+
+//     private void EnsureCapacity(int capacity)
+//     {
+//         if (capacity > Length)
+//         {
+//             T[] newItems = pool.Rent(capacity);
+//             items.AsSpan().CopyTo(newItems);
+//             pool.Return(items);
+//             items = newItems;
+//         }
+//     }
+
+
+//     public void Add(T item)
+//     {
+//         EnsureCapacity(++Length);
+//         items[Length - 1] = item;
+//     }
+
+//     public void Remove(T item)
+
+
+
+//     public void Dispose()
+//     {
+
+//     }
+// }

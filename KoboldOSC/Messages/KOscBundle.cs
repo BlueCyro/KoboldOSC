@@ -5,9 +5,20 @@ using KoboldOSC.Structs;
 
 namespace KoboldOSC.Messages;
 
+/// <summary>
+/// Represents a bundle of OSC messages.
+/// </summary>
 public class KOscBundle : IDisposable, IKOscPacket
 {
+    /// <summary>
+    /// The constant length of a null-terminated bundle header: #bundle\0x00
+    /// </summary>
     public const int BUNDLE_HEADER_LENGTH = 8;
+
+    // The header "#bundle" terminated by a null byte.
+    static readonly byte[] bundleHeader = [0x23, 0x62, 0x75, 0x6E, 0x64, 0x6C, 0x65, 0x00];
+
+    /// <inheritdoc/>
     public int ByteLength
     {
         get
@@ -20,10 +31,13 @@ public class KOscBundle : IDisposable, IKOscPacket
         }
     }
 
-    static readonly byte[] bundleHeader = [0x23, 0x62, 0x75, 0x6E, 0x64, 0x6C, 0x65, 0x00];
     private KOscMessage[] bundled;
     private int bundledLength;
 
+    /// <summary>
+    /// Creates a new bundle of OSC messages.
+    /// </summary>
+    /// <param name="messages">The messages to include in this bundle.</param>
     public KOscBundle(params Span<KOscMessage> messages)
     {
         bundledLength = messages.Length;
@@ -35,11 +49,9 @@ public class KOscBundle : IDisposable, IKOscPacket
     }
 
 
+    /// <inheritdoc/>
     public void Serialize(Span<byte> destination)
     {
-        if (destination.Length < ByteLength)
-            throw new ArgumentOutOfRangeException(nameof(destination), "Span destination isn't large enough to hold this message.");
-
         int curIndex = bundleHeader.Length;
         Span<byte> bundleHeaderSlice = destination[..curIndex];
         bundleHeader.CopyTo(bundleHeaderSlice);
@@ -64,6 +76,9 @@ public class KOscBundle : IDisposable, IKOscPacket
     }
 
 
+    /// <summary>
+    /// Disposes of this OSC packet and frees the array pool.
+    /// </summary>
     public void Dispose()
     {
         GC.SuppressFinalize(this);
