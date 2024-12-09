@@ -1,7 +1,7 @@
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Text;
-using KoboldOSC.Structs;
+using KoboldOSC.Messages;
 
 namespace KoboldOSC;
 
@@ -19,8 +19,40 @@ public static class KoboldOSC
             int     => (byte)'i',
             float   => (byte)'f',
             char    => (byte)'s',
+            string  => (byte)'s',
+            InlineString512 => (byte)'s',
             byte    => (byte)'b',
             ulong   => (byte)'t',
+            _ => throw new NotSupportedException($"OSC type unsupported: {typeof(T)}"),
+        };
+    }
+
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static OscType GetOSCIdentifierS<T>(this T val)
+        where T : unmanaged
+    {
+        // Type type = typeof(T);
+
+        // if (type == typeof(int))
+        //     return OscType.Int;
+        // if (type == typeof(float))
+        //     return OscType.Float;
+        // if (type == typeof(StackString512))
+        //     return OscType.String;
+        // if (type == typeof(byte))
+        //     return OscType.Binary;
+        // if (type == typeof(ulong))
+        //     return OscType.TimeTag;
+        // else throw new NotSupportedException($"OSC type unsupported: {typeof(T)}");
+
+        return val switch
+        {
+            int     => OscType.Int,
+            float   => OscType.Float,
+            InlineString512 => OscType.String,
+            byte    => OscType.Binary,
+            ulong   => OscType.TimeTag,
             _ => throw new NotSupportedException($"OSC type unsupported: {typeof(T)}"),
         };
     }

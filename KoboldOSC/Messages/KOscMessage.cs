@@ -1,10 +1,14 @@
 using System.Buffers;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using KoboldOSC.Helpers;
 using KoboldOSC.Structs;
 
+[assembly: InternalsVisibleTo("KoboldOSC.Tests")]
+
 namespace KoboldOSC.Messages;
+
 
 /// <summary>
 /// Represents an OSC message.
@@ -172,54 +176,12 @@ public class KOscMessage : IDisposable, IKOscPacket
 }
 
 
-
-// public struct PooledQueue<T> : IDisposable
-// {
-//     private readonly ArrayPool<T> pool;
-//     private T[] items;
-//     public int Length { readonly get; private set; }
-
-
-
-//     public PooledQueue()
-//     {
-//         pool = ArrayPool<T>.Shared;
-//         items = [];
-//         EnsureCapacity(0);
-//     }
-
-//     public PooledQueue(ArrayPool<T> arrayPool)
-//     {
-//         pool = arrayPool;
-//         items = [];
-//         EnsureCapacity(0);
-//     }
-
-
-//     private void EnsureCapacity(int capacity)
-//     {
-//         if (capacity > Length)
-//         {
-//             T[] newItems = pool.Rent(capacity);
-//             items.AsSpan().CopyTo(newItems);
-//             pool.Return(items);
-//             items = newItems;
-//         }
-//     }
-
-
-//     public void Add(T item)
-//     {
-//         EnsureCapacity(++Length);
-//         items[Length - 1] = item;
-//     }
-
-//     public void Remove(T item)
-
-
-
-//     public void Dispose()
-//     {
-
-//     }
-// }
+public enum OscType : int
+{
+    Unknown =  0,
+    Int     = 'i',
+    Float   = 'f',
+    String  = 's',
+    Binary  = 'b',
+    TimeTag = 't',
+}

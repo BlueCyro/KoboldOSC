@@ -57,7 +57,7 @@ public class KOscBundle : IDisposable, IKOscPacket
         bundleHeader.CopyTo(bundleHeaderSlice);
 
         Span<byte> timeTagSlice = destination.Slice(curIndex, Unsafe.SizeOf<ulong>());
-        ulong curTime = DateTime.Now.ToNtp();
+        ulong curTime = DateTime.Now.Ticks2Ntp();
         curTime.CopyTo(timeTagSlice);
         curIndex += Unsafe.SizeOf<ulong>();
 
