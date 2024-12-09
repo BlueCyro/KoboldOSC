@@ -1,5 +1,10 @@
+using System.Buffers.Binary;
+using System.Numerics;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
+using System.Runtime.Intrinsics;
 using System.Text;
+using KoboldOSC.Messages;
 
 namespace KoboldOSC.Helpers;
 
@@ -21,13 +26,7 @@ public static class KOscValueHelpers
     /// <param name="value">The int to copy bytes from.</param>
     /// <param name="bytes">The span to copy bytes to.</param>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static void CopyTo(this int value, Span<byte> bytes)
-    {
-        bytes[0] = (byte)(value >> 24);
-        bytes[1] = (byte)(value >> 16);
-        bytes[2] = (byte)(value >>  8);
-        bytes[3] = (byte) value;
-    }
+    public static void CopyTo(this int value, Span<byte> bytes) => unchecked((uint)value).CopyTo(bytes);
 
 
 
@@ -37,13 +36,22 @@ public static class KOscValueHelpers
     /// <param name="value">The float to copy bytes from.</param>
     /// <param name="bytes">The span to copy bytes to.</param>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static void CopyTo(this float value, Span<byte> bytes)
+    public static void CopyTo(this float value, Span<byte> bytes) => Unsafe.As<float, uint>(ref value).CopyTo(bytes);
+
+
+    /// <summary>
+    /// Copies a uint's composite bytes to a span, big endian. Does NOT check the span size.
+    /// </summary>
+    /// <param name="value">The uint to copy bytes from.</param>
+    /// <param name="bytes">The span to copy bytes to.</param>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static void CopyTo(this uint value, Span<byte> bytes)
     {
-        ref uint valUint = ref Unsafe.As<float, uint>(ref value);
-        bytes[0] = (byte)(valUint >> 24);
-        bytes[1] = (byte)(valUint >> 16);
-        bytes[2] = (byte)(valUint >>  8);
-        bytes[3] = (byte) valUint;
+        ref uint dest = ref Unsafe.As<byte, uint>(ref MemoryMarshal.GetReference(bytes));
+        if (BitConverter.IsLittleEndian)
+            dest = BinaryPrimitives.ReverseEndianness(value);
+        else
+            dest = value;
     }
 
 
@@ -55,14 +63,11 @@ public static class KOscValueHelpers
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void CopyTo(this ulong value, Span<byte> bytes)
     {
-        bytes[0] = (byte)(value >> 56);
-        bytes[1] = (byte)(value >> 48);
-        bytes[2] = (byte)(value >> 40);
-        bytes[3] = (byte)(value >> 32);
-        bytes[4] = (byte)(value >> 24);
-        bytes[5] = (byte)(value >> 16);
-        bytes[6] = (byte)(value >>  8);
-        bytes[7] = (byte) value;
+        ref ulong dest = ref Unsafe.As<byte, ulong>(ref MemoryMarshal.GetReference(bytes));
+        if (BitConverter.IsLittleEndian)
+            dest = BinaryPrimitives.ReverseEndianness(value);
+        else
+            dest = value;
     }
 
 
@@ -76,6 +81,22 @@ public static class KOscValueHelpers
     public static void CopyTo(this string value, Span<byte> bytes) => Encoding.UTF8.GetBytes(value, bytes);
 
 
+
+    /// <summary>
+    /// Copies a string's composite UTF8 bytes to a span, big endian. Does NOT check the span size.
+    /// </summary>
+    /// <param name="value">The ulong to copy bytes from.</param>
+    /// <param name="bytes">The span to copy bytes to.</param>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static unsafe void CopyTo(this ref InlineString512 value, Span<byte> bytes)
+    {
+        fixed (byte* dataPtr = value.data)
+        fixed (byte* destPtr = bytes)
+            Buffer.MemoryCopy(dataPtr, destPtr, bytes.Length, value.Length);
+    }
+
+
+
     /// <summary>
     /// Gets the 4-byte-aligned, UTF8 byte count of a string. Rounds up to the next alignment.
     /// </summary>
@@ -85,6 +106,11 @@ public static class KOscValueHelpers
     public static int GetAlignedLength(this string value) => (Encoding.UTF8.GetByteCount(value) + 1).Ensure4Byte();
 
 
+    /// <summary>
+    /// Gets the 4-byte-aligned length of a span of bytes.
+    /// </summary>
+    /// <param name="value">The span to get the aligned length of.</param>
+    /// <returns>The length, rounded up to the nearest multiple of 4.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static int GetAlignedLength(this Span<byte> value) => value.Length.Ensure4Byte();
 
@@ -94,6 +120,7 @@ public static class KOscValueHelpers
     /// </summary>
     /// <param name="time">The time to convert.</param>
     /// <returns>Raw NTP timestamp.</returns>
+    [Obsolete]
     public static ulong ToNtp(this DateTime time)
     {
         TimeSpan span = time.Subtract(Base);
@@ -105,6 +132,24 @@ public static class KOscValueHelpers
         double fraction = (milliseconds / 1000) * ((double)uint.MaxValue);
 
         return (((ulong)uintSeconds & 0xFFFFFFFF) << 32) | ((ulong)fraction & 0xFFFFFFFF);
+    }
+
+
+
+    /// <summary>
+    /// Converts DateTime into a Network Time Protocol (NTP) timestamp.
+    /// <para>
+    /// Modified version of Cameron's code on stackoverflow: https://stackoverflow.com/a/23160246
+    /// </para>
+    /// </summary>
+    /// <param name="time">The time to convert.</param>
+    /// <returns>Raw NTP timestamp.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static ulong Ticks2Ntp(this DateTime time)
+    {
+        double b = time.Ticks - Base.Ticks;
+        b = b / 10000000L * (1UL << 32);
+        return (ulong)b;
     }
 
 
