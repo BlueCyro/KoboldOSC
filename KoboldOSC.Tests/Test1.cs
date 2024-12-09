@@ -1,30 +1,56 @@
-﻿using KoboldOSC;
+﻿using System.Runtime.CompilerServices;
+using KoboldOSC;
+using KoboldOSC.Helpers;
 using KoboldOSC.Messages;
+using KoboldOSC.Structs;
 
 namespace KoboldOSC.Tests;
 
 [TestClass]
 public sealed class SerializationTests
 {
-    public const string OSC_TEST_PATH = "/osc/unit_tests/testpath";
+    public const string OSC_TEST_PATH = "/one/two/three";
 
 
-    // [TestMethod]
-    // public void TestMessageSerialize()
-    // {
-    //     // Create a new message
-    //     KOscMessage msg = new(OSC_TEST_PATH);
+#pragma warning disable CS0612 // Type or member is obsolete
+    [TestMethod]
+    public void TestNtpTime()
+    {
+        DateTime time = new(638692700035253476);
 
+        ulong suspectA = time.ToNtp();
+        ulong suspectB = time.Ticks2Ntp();
 
-    // }
+        Console.WriteLine($"Time: {time.Ticks}, ToNtp: {suspectA >> 32}.{(uint)suspectA}, Shorthand: {suspectB >> 32}.{(uint)suspectB}");
+    }
+#pragma warning restore CS0612 // Type or member is obsolete
 
 
     
     [TestMethod]
-    public void TestPooledList()
+    public unsafe void TestMessageSerialize()
     {
-        PooledQueue<int> testList = new(20);
+        KOscMessageS msg = new(OSC_TEST_PATH);
+        KOscMessageS.Start(out _)
+            .WriteInt(12, out _)
+            .WriteFloat(99f, out _)
+            .WriteTimeTag(DateTime.Now, out _)
+            .WriteString("1234567", out _)
+            .End(ref msg);
 
+        Span<byte> serialized = stackalloc byte[msg.ByteLength];
+        msg.Serialize(serialized);
 
+        Console.WriteLine($"Parameter count: {msg.ItemCount}");
+        Console.WriteLine($"Byte Length: {msg.ByteLength}");
+        File.WriteAllBytes("./OSC_TEST_SERIALIZED.osc", serialized);
+    }
+
+    public static ref int TestRef(ref int test) => ref test;
+
+    public static ref int TestOut(out int test)
+    {
+        test = 7;
+        return ref Unsafe.AsRef(in test);
     }
 }
