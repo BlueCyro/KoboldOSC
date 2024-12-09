@@ -15,12 +15,12 @@ public ref struct KOscMessageS(string path)
     public readonly int ParameterBytes => Chain.TotalBytes;
     public readonly int ItemCount => Chain.Length;
 
-    public unsafe readonly ref RefChain Chain => ref Unsafe.AsRef<RefChain>(refChain);
-    internal unsafe RefChain* refChain;
+    public unsafe readonly ref ParamChain Chain => ref Unsafe.AsRef<ParamChain>(refChain);
+    internal unsafe ParamChain* refChain;
 
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static ref RefChain Start(out RefChain discard)
+    public static ref ParamChain Start(out ParamChain discard)
     {
         discard = new();
         return ref Unsafe.AsRef(in discard);
@@ -37,7 +37,7 @@ public ref struct KOscMessageS(string path)
         Span<byte> idBuf = idMark[1..];
         Span<byte> paramBuf = idMark[IdTableBytes..];
 
-        ref RefChain chain = ref Chain;
+        ref ParamChain chain = ref Chain;
 
 
         int curIdIndex = ItemCount;

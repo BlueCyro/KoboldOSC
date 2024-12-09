@@ -9,45 +9,45 @@ namespace KoboldOSC.Helpers;
 public static class KOSCMessageHelper
 {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static unsafe ref RefChain End(this ref RefChain prev, ref KOscMessageS message)
+    public static unsafe ref ParamChain End(this ref ParamChain prev, ref KOscMessageS message)
     {
-        message.refChain = (RefChain*)Unsafe.AsPointer(ref prev);
+        message.refChain = (ParamChain*)Unsafe.AsPointer(ref prev);
         return ref prev;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static ref RefChain WriteInt(this ref RefChain prev, int value, out LinkedRef<int> discard)
+    public static ref ParamChain WriteInt(this ref ParamChain prev, int value, out ParamLink<int> discard)
     {
         discard = new(ref prev, value);
-        return ref Unsafe.As<LinkedRef<int>, RefChain>(ref Unsafe.AsRef(in discard));
+        return ref Unsafe.As<ParamLink<int>, ParamChain>(ref Unsafe.AsRef(in discard));
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static ref RefChain WriteFloat(this ref RefChain prev, float value, out LinkedRef<float> discard)
+    public static ref ParamChain WriteFloat(this ref ParamChain prev, float value, out ParamLink<float> discard)
     {
         discard = new(ref prev, value);
-        return ref Unsafe.As<LinkedRef<float>, RefChain>(ref Unsafe.AsRef(in discard));
+        return ref Unsafe.As<ParamLink<float>, ParamChain>(ref Unsafe.AsRef(in discard));
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static ref RefChain WriteTimeTag(this ref RefChain prev, DateTime value, out LinkedRef<ulong> discard)
+    public static ref ParamChain WriteTimeTag(this ref ParamChain prev, DateTime value, out ParamLink<ulong> discard)
     {
         discard = new(ref prev, value.Ticks2Ntp());
-        return ref Unsafe.As<LinkedRef<ulong>, RefChain>(ref Unsafe.AsRef(in discard));
+        return ref Unsafe.As<ParamLink<ulong>, ParamChain>(ref Unsafe.AsRef(in discard));
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static ref RefChain WriteString(this ref RefChain prev, string value, out LinkedString discard)
+    public static ref ParamChain WriteString(this ref ParamChain prev, string value, out ParamString discard)
     {
         discard = new(ref prev, value);
-        ref RefChain rChain = ref Unsafe.As<LinkedString, RefChain>(ref Unsafe.AsRef(in discard));
+        ref ParamChain rChain = ref Unsafe.As<ParamString, ParamChain>(ref Unsafe.AsRef(in discard));
         return ref rChain;
     }
 
 
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static void CopyOscData(this ref RefChain chain, Span<byte> destination)
+    public static void CopyOscData(this ref ParamChain chain, Span<byte> destination)
     {
         ref byte byteRef = ref chain.GetPayload();
         OscType asType = chain.Type;
@@ -76,5 +76,5 @@ public static class KOSCMessageHelper
 
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal static ref byte GetPayload(this ref RefChain chain) => ref Unsafe.As<RefChain, byte>(ref Unsafe.Add(ref chain, 1));
+    internal static ref byte GetPayload(this ref ParamChain chain) => ref Unsafe.As<ParamChain, byte>(ref Unsafe.Add(ref chain, 1));
 }
