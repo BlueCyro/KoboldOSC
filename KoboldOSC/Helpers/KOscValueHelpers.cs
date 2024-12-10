@@ -103,7 +103,11 @@ public static class KOscValueHelpers
     /// <param name="value">The string to get the aligned length of.</param>
     /// <returns>A 4-byte-aligned, rounded-up UTF8 byte count of the string.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static int GetAlignedLength(this string value) => (Encoding.UTF8.GetByteCount(value) + 1).Ensure4Byte();
+    public static int GetAlignedLength(this ReadOnlySpan<char> value) => (Encoding.UTF8.GetByteCount(value) + 1).Ensure4Byte();
+
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static int GetAlignedLength(this string value) => GetAlignedLength(value.AsSpan());
 
 
     /// <summary>

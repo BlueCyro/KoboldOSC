@@ -50,6 +50,7 @@ public static class KoboldOSC
         {
             int     => OscType.Int,
             float   => OscType.Float,
+            char    => OscType.String,
             InlineString512 => OscType.String,
             byte    => OscType.Binary,
             ulong   => OscType.TimeTag,

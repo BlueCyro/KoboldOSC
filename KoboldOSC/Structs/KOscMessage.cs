@@ -20,11 +20,7 @@ public ref struct KOscMessageS(string path)
 
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static ref ParamChain Start(out ParamChain discard)
-    {
-        discard = new();
-        return ref Unsafe.AsRef(in discard);
-    }
+    public static ref ParamChain Start(in ParamChain discard = default) => ref Unsafe.AsRef(in discard);
 
 
     public readonly void Serialize(Span<byte> buffer)
@@ -47,7 +43,7 @@ public ref struct KOscMessageS(string path)
             idBuf[--curIdIndex] = (byte)chain.Type;
             curParamIndex -= chain.ByteLength;
             chain.CopyOscData(paramBuf[curParamIndex..]);
-            chain = ref chain.GetNext();
+            chain = ref chain.Next;
         }
     }
 }

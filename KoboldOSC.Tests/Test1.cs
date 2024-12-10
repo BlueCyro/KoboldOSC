@@ -31,11 +31,11 @@ public sealed class SerializationTests
     public unsafe void TestMessageSerialize()
     {
         KOscMessageS msg = new(OSC_TEST_PATH);
-        KOscMessageS.Start(out _)
-            .WriteInt(12, out _)
-            .WriteFloat(99f, out _)
-            .WriteTimeTag(DateTime.Now, out _)
-            .WriteString("1234567", out _)
+        KOscMessageS.Start()
+            .WriteInt(12)
+            .WriteFloat(99f)
+            .WriteTimeTag(DateTime.Now)
+            .WriteString("This is a pretty cool OSC string I think. :)")
             .End(ref msg);
 
         Span<byte> serialized = stackalloc byte[msg.ByteLength];
