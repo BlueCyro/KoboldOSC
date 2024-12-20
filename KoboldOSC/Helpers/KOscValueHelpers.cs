@@ -124,7 +124,7 @@ public static class KOscValueHelpers
     /// </summary>
     /// <param name="time">The time to convert.</param>
     /// <returns>Raw NTP timestamp.</returns>
-    [Obsolete]
+    [Obsolete($"This method is slower than {nameof(Ticks2Ntp)}.")]
     public static ulong ToNtp(this DateTime time)
     {
         TimeSpan span = time.Subtract(Base);
