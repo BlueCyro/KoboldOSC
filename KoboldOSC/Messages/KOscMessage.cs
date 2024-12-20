@@ -13,6 +13,7 @@ namespace KoboldOSC.Messages;
 /// <summary>
 /// Represents an OSC message.
 /// </summary>
+[Obsolete("Soon to be replaced by zero-allocation message types.")]
 public class KOscMessage : IDisposable, IKOscPacket
 {
     /// <inheritdoc />
