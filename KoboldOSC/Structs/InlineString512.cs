@@ -6,6 +6,7 @@ namespace KoboldOSC.Messages;
 /// <summary>
 /// Represents a fixed-size string held inline along with its length.
 /// </summary>
+[Obsolete("Not required by zero-allocation replacement messages. Will be removed soon.")]
 [StructLayout(LayoutKind.Sequential, Pack = 16)]
 public struct InlineString512
 {
