@@ -58,14 +58,14 @@ public class KOscBundle : IDisposable, IKOscPacket
 
         Span<byte> timeTagSlice = destination.Slice(curIndex, Unsafe.SizeOf<ulong>());
         ulong curTime = DateTime.Now.Ticks2Ntp();
-        curTime.CopyTo(timeTagSlice);
+        curTime.CopyBytesTo(timeTagSlice);
         curIndex += Unsafe.SizeOf<ulong>();
 
         for (int i = 0; i < bundledLength; i++)
         {
             KOscMessage curMsg = bundled[i];
             Span<byte> curSizeSlice = destination.Slice(curIndex, Unsafe.SizeOf<int>());
-            curMsg.ByteLength.CopyTo(curSizeSlice);
+            curMsg.ByteLength.CopyBytesTo(curSizeSlice);
             curIndex += Unsafe.SizeOf<int>();
 
 

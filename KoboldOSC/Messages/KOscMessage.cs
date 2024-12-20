@@ -53,7 +53,7 @@ public class KOscMessage : IDisposable, IKOscPacket
         Span<byte> idSlice = destination.Slice(pathSizeAligned, IdLengthAligned);
         Span<byte> valueSlice = destination.Slice(pathSizeAligned + IdLengthAligned, valuesLength);
 
-        Path.CopyTo(pathSlice);
+        Path.CopyBytesTo(pathSlice);
         ((Span<byte>)idTable)[..idLength].CopyTo(idSlice);
         ((Span<byte>)values)[..valuesLength].CopyTo(valueSlice);
     }
@@ -69,7 +69,7 @@ public class KOscMessage : IDisposable, IKOscPacket
 
         for (int i = 0; i < value.Length; i++)
         {
-            value[i].CopyTo(space);
+            value[i].CopyBytesTo(space);
             space = space[width..];
         }
     }
@@ -85,7 +85,7 @@ public class KOscMessage : IDisposable, IKOscPacket
 
         for (int i = 0; i < value.Length; i++)
         {
-            value[i].CopyTo(space);
+            value[i].CopyBytesTo(space);
             space = space[width..];
         }
     }
@@ -101,7 +101,7 @@ public class KOscMessage : IDisposable, IKOscPacket
 
         for (int i = 0; i < value.Length; i++)
         {
-            value[i].CopyTo(space);
+            value[i].CopyBytesTo(space);
             space = space[width..];
         }
     }
@@ -120,7 +120,7 @@ public class KOscMessage : IDisposable, IKOscPacket
 
         for (int i = 0; i < str.Length; i++)
         {
-            str[i].CopyTo(space);
+            str[i].CopyBytesTo(space);
             space = space[str[i].GetAlignedLength()..];
         }
     }
