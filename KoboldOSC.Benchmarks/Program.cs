@@ -13,7 +13,6 @@ public class Program
     {
         var config = DefaultConfig.Instance.AddJob(Job.InProcess);
         BenchmarkSwitcher.FromAssembly(typeof(Program).Assembly).Run(args, config);
+        // BenchmarkSwitcher.FromAssembly(typeof(Program).Assembly).Run(args);
     }
 }
-
-
